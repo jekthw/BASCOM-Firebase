@@ -1,2 +1,2 @@
 # BASCOM
-An Community Website For Alumni Of Bastyasaka (SHS 3 JOMBANG)
+A Community Website For Alumni Of Bastyasaka (SHS 3 JOMBANG)
