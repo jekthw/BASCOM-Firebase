@@ -1,0 +1,267 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model unitTest {
+  id          Int    @id @default(autoincrement())
+  name        String
+  description String
+}
+
+// Enums for better type safety
+enum VerificationStatus {
+  PENDING
+  WAITING_FOR_ADMIN_VERIFICATION
+  UPLOAD_DOCUMENT
+  APPROVED
+  REJECTED
+}
+
+enum CareerLevel {
+  FRESH_GRAD
+  PROFESSIONAL
+  SENIOR
+  EXECUTIVE
+}
+
+enum CurrentStatus {
+  WORKING
+  STUDYING
+  ENTREPRENEUR
+  UNEMPLOYED
+}
+
+enum PrivacyLevel {
+  PUBLIC
+  CONNECTIONS
+  PRIVATE
+}
+
+enum ConnectionStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+enum AccountRole {
+  USER
+  VERIFIED_USER
+  ADMIN
+}
+
+enum SkillLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  EXPERT
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+  PREFER_NOT_TO_SAY
+}
+
+// Main User table
+model User {
+  id                 Int                @id @default(autoincrement())
+  nis                String             @unique
+  email              String             @unique @db.VarChar(255)
+  passwordHash       String             @map("password_hash")
+  name               String
+  phone              String?            @db.VarChar(20)
+  bio                String?            @db.Text
+  profilePictureUrl  String?            @map("profile_picture_url")
+  angkatan           String
+  gender             Gender             @default(PREFER_NOT_TO_SAY)
+  verificationStatus VerificationStatus @default(PENDING) @map("verification_status")
+  verificationData   Json?              @map("verification_data") // Store nama ibu, ttl, etc as JSON
+  careerLevel        CareerLevel        @default(FRESH_GRAD) @map("career_level")
+  currentStatus      CurrentStatus      @default(UNEMPLOYED) @map("current_status")
+  isMentor           Boolean            @default(false) @map("is_mentor")
+  privacyLevel       PrivacyLevel       @default(PUBLIC) @map("privacy_level")
+  createdAt          DateTime           @default(now()) @map("created_at")
+  updatedAt          DateTime           @updatedAt @map("updated_at")
+  role               AccountRole        @default(USER)
+
+  // Relationships
+  workExperiences      WorkExperience[]
+  educations           Education[]
+  userSkills           UserSkill[]
+  verificationRequests VerificationRequest[]
+  oauthAccounts        OAuthAccount[]
+
+  // Connections (self-referencing many-to-many)
+  sentConnections     Connection[] @relation("Requester")
+  receivedConnections Connection[] @relation("Requested")
+  // Relasi ke VerificatorData
+  verificatorData   VerificatorData @relation("UserToVerificator", fields: [nis], references: [nis])
+
+  @@map("users")
+  @@index([name])
+}
+
+model VerificatorData {
+  id                Int         @id @default(autoincrement())
+  nis               String      @unique              // nomor induk siswa unik
+  name              String                          // nama siswa
+  gender            Gender                          // jenis kelamin
+  religion          String                          // agama
+  motherName        String      @map("mother_name")  // nama ibu
+  fatherName        String      @map("father_name")  // nama ayah
+  birthDate         DateTime?   @map("birth_date")  // opsional, buat verifikasi tambahan
+  placeOfBirth      String?     @map("place_of_birth") // opsional, buat verifikasi tambahan
+  graduationYear    DateTime?   @map("graduation_year") // opsional, buat verifikasi tambahan
+  angkatan          String?                       // angkatan/lulusan tahun berapa
+  createdAt         DateTime    @default(now())      // kapan data ini dimasukin
+  updatedAt         DateTime    @updatedAt
+
+  // Relasi ke User (1-1)
+  user           User?    @relation("UserToVerificator")
+
+  @@map("verificator_data")
+  @@index([nis, name]) // biar pencarian cepat berdasarkan nis+nama
+}
+
+model OAuthAccount {
+  id           Int       @id @default(autoincrement())
+  userId       Int
+  provider     String // contoh: "google", "github", "microsoft"
+  providerId   String // ID unik dari provider (sub dari JWT mereka)
+  accessToken  String?
+  refreshToken String?
+  expiresAt    DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerId]) // biar ga dobel akun sama
+}
+
+model VerificationRequest {
+  id         Int                @id @default(autoincrement())
+  userId     Int                @map("user_id")
+  docType    String // misal: "ijazah", "rapor"
+
+  fileUrl    String             @map("file_url")
+  status     VerificationStatus @default(PENDING)
+  reviewedBy Int?               @map("reviewed_by") // admin id
+  reviewedAt DateTime?
+  createdAt  DateTime           @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("verification_requests")
+}
+
+// Work Experience table
+model WorkExperience {
+  id          Int       @id @default(autoincrement())
+  userId      Int       @map("user_id")
+  companyName String    @map("company_name")
+  position    String
+  startDate   DateTime  @map("start_date") @db.Date
+  endDate     DateTime? @map("end_date") @db.Date
+  description String?
+  isCurrent   Boolean   @default(false) @map("is_current")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  // Relationship
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("work_experiences")
+}
+
+// Education table
+model Education {
+  id              Int      @id @default(autoincrement())
+  userId          Int      @map("user_id")
+  institutionName String   @map("institution_name")
+  degree          String
+  major           String
+  startYear       Int      @map("start_year")
+  endYear         Int?     @map("end_year")
+  gpa             Decimal? @db.Decimal(3, 2) // Max 4.00
+  isCurrent       Boolean  @default(false) @map("is_current")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  deletedAt       DateTime? @map("deleted_at")
+
+  // Relationship
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("educations")
+}
+
+// Skills lookup table
+model Skill {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relationship
+  userSkills UserSkill[]
+
+  @@map("skills")
+}
+
+// Many-to-many relationship between Users and Skills
+model UserSkill {
+  userId    Int        @map("user_id")
+  skillId   Int        @map("skill_id")
+  level     SkillLevel @default(BEGINNER)
+  createdAt DateTime   @default(now()) @map("created_at")
+
+  // Relationships
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  skill Skill @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@id([userId, skillId]) // Composite primary key
+  @@map("user_skills")
+}
+
+// Connections/Networking table
+model Connection {
+  id          Int              @id @default(autoincrement())
+  requesterId Int              @map("requester_id")
+  requestedId Int              @map("requested_id")
+  status      ConnectionStatus @default(PENDING)
+  createdAt   DateTime         @default(now()) @map("created_at")
+  updatedAt   DateTime         @updatedAt @map("updated_at")
+
+  // Relationships
+  requester User @relation("Requester", fields: [requesterId], references: [id], onDelete: Cascade)
+  requested User @relation("Requested", fields: [requestedId], references: [id], onDelete: Cascade)
+
+  // Prevent duplicate connections
+  @@unique([requesterId, requestedId])
+  @@map("connections")
+}
+
+model APIKey {
+  id          Int       @id @default(autoincrement())
+  keyHash     String    @map("key_hash") @unique // Hashed API key untuk storage
+  name        String    @unique// Nama untuk identifikasi API key
+  description String?   // Deskripsi penggunaan
+  isActive    Boolean   @default(true)
+  lastUsed    DateTime? @map("last_used")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  expiresAt   DateTime? @map("expires_at")
+
+  @@map("api_keys")
+  @@index([keyHash])
+}
