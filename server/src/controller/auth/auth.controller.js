@@ -4,6 +4,7 @@ import { loginUser } from "../../services/auth/login.service.js";
 import { ValidationError } from "../../utils/validationError.js";
 import { getRejectedOrNotFoundUser, deleteRejectedOrNotFoundUser } from "../../services/auth/rejectedUserCache.service.js";
 import { refreshToken as refreshTokenService } from "../../services/auth/refreshToken.service.js";
+import { logoutUser, logoutFromAllDevices as logoutAllDevices } from "../../services/auth/logout.service.js";
 
 export const register = async (req, res) => {
   try {
@@ -45,14 +46,7 @@ export const deleteUserCache = async (req, res) => {
 
 export const login = async (req, res) => {
   try {
-    const { identifier, password } = req.body;
-
-    const ip = req.headers['x-forwarded-for'] || req.ip || req.connection?.remoteAddress || 'unknown';
-    const userAgent = req.headers['user-agent'];
-
-    // Call the service
-    const result = await loginUser(identifier, password, ip, userAgent);
-
+    const result = await loginUser(req);
 
     // Set refresh token as httpOnly cookie (secure af no cap)
     res.cookie("refreshToken", result.refreshToken, {
@@ -82,14 +76,7 @@ export const login = async (req, res) => {
 
 export const refreshTokenEndpoint = async (req, res) => {
     try {
-      const refreshToken = req.cookies?.refreshToken;
-      
-      if (!refreshToken) {
-        return response(res, 401, "No refresh token", { nextAction: "LOGIN" }, ["Missing refresh token"]);
-      }
-
-      // Verify refresh token
-      const result = await refreshTokenService(refreshToken);
+      const result = await refreshTokenService(req);
       
       // Set refresh token baru
       res.cookie("refreshToken", result.newRefreshToken, {
@@ -108,4 +95,28 @@ export const refreshTokenEndpoint = async (req, res) => {
       console.error("Refresh token error:", err);
       return response(res, 500, "Refresh failed", null, [err.message]);
     }
+};
+
+export const logout = async (req, res) => {
+  try {
+    const result = await logoutUser(req);
+
+    res.clearCookie("refreshToken");
+
+    return response(res, result.statusCode, result.message, result.payload);
+  } catch (error) {
+    return response(res, 500, "Internal server error", null, [error.message]);
+  }
+}
+
+export const logoutFromAllDevices = async (req, res) => {
+  try {
+
+    res.clearCookie("refreshToken");
+    
+    const result = await logoutAllDevices(req);
+    return response(res, result.statusCode, result.message, result.payload);
+  } catch (error) {
+    return response(res, 500, "Internal server error", null, [error.message]);
+  }
 };

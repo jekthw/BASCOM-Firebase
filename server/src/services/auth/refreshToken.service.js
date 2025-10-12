@@ -1,7 +1,12 @@
 import { TokenService } from "./token.service.js";
 import { ValidationError } from "../../utils/validationError.js";
 
-export const refreshToken = async (oldRefreshToken) => {
+export const refreshToken = async (req) => {
+    const oldRefreshToken = req.cookies?.refreshToken;
+
+    if (!oldRefreshToken) {
+        throw new ValidationError("No refresh token", 401).addError("Missing refresh token");
+    }
     
     const result = await TokenService.verifyRefreshToken(oldRefreshToken);
     

@@ -143,7 +143,7 @@ export const TokenService = {
         if (keys.length > 0) {
             await redis.del(...keys);
         }
-        console.log(`🚨 Revoked token family ${familyId} for user ${userId}`);
+        // console.log(`🚨 Revoked token family ${familyId} for user ${userId}`);
     },
 
     async revokeAllUserTokens(userId) {

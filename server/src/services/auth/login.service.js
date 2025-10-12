@@ -3,8 +3,14 @@ import prisma from "../../config/prisma.js";
 import { ValidationError } from "../../utils/validationError.js";
 import { TokenService } from "./token.service.js";
 
-export const loginUser = async (identifier, password, ip, userAgent) => {
+export const loginUser = async (req) => {
     // identifier can be either username or email
+
+    const { identifier, password } = req.body;
+
+    const ip = req.headers['x-forwarded-for'] || req.ip || req.connection?.remoteAddress || 'unknown';
+    const userAgent = req.headers['user-agent'];
+
     if(!identifier || !password) {
         throw new ValidationError("Missing credentials", 400);
     }
