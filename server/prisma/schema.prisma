@@ -153,12 +153,12 @@ model OAuthAccount {
 model VerificationRequest {
   id         Int                @id @default(autoincrement())
   userId     Int                @map("user_id")
-  docType    String // misal: "ijazah", "rapor"
+  docType    String? // misal: "ijazah", "rapor"
 
-  fileUrl    String             @map("file_url")
+  fileUrl    String?             @map("file_url")
   status     VerificationStatus @default(PENDING)
   reviewedBy Int?               @map("reviewed_by") // admin id
-  reviewedAt DateTime?
+  reviewedAt DateTime?  
   createdAt  DateTime           @default(now()) @map("created_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)

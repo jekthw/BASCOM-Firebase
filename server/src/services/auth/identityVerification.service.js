@@ -14,6 +14,7 @@ export const verifyUserIdentity = async (nis, motherName, birthDate) => {
     }
 
     const motherCheck = findSimilarName(verificationRecord.motherName, motherName);
+    console.log("Mother name check:", motherCheck);
 
     if (motherCheck.status === "VERIFIED" && birthDate.getTime() === verificationRecord.birthDate.getTime())
         return {status: "APPROVED", verificationRecord};
@@ -22,9 +23,7 @@ export const verifyUserIdentity = async (nis, motherName, birthDate) => {
     else if (motherCheck.status === "PENDING" && birthDate.getTime() === verificationRecord.birthDate.getTime())
         return {status: "PENDING", reason: "Mother's name is similar but not exact", verificationRecord};
     else if (motherCheck.status === "REJECTED" && birthDate.getTime() !== verificationRecord.birthDate.getTime())
-        return {status: "REJECTED", reason: "Mother's name is similar but not exact, and birth date does not match", verificationRecord};
-    else if (motherCheck.status === "REJECTED") {
-        return {status: "REJECTED", reason: "Mother's name does not match", verificationRecord};
-    }
+        return {status: "REJECTED", reason: "Mother's name does not match, and birth date does not match", verificationRecord
+    };
 
 }

@@ -5,14 +5,16 @@ import { ValidationError } from "../../utils/validationError.js";
 import { getRejectedOrNotFoundUser, deleteRejectedOrNotFoundUser } from "../../services/auth/rejectedUserCache.service.js";
 import { refreshToken as refreshTokenService } from "../../services/auth/refreshToken.service.js";
 import { logoutUser, logoutFromAllDevices as logoutAllDevices } from "../../services/auth/logout.service.js";
+import { cancelRegistration as cancelRegistrationService } from "../../services/auth/cancelRegistration.service.js";
 
 export const register = async (req, res) => {
   try {
     const result = await registerUser(req);
     return response(res, result.statusCode, result.message, result.payload);
   } catch (error) {
+    console.error("Registration error:", error);
     if (error instanceof ValidationError) {
-      return response(res, error.statusCode, error.message, null, error.errorsList);
+      return response(res, error.statusCode, error.message, error.payload, error.errorsList); 
     }
     return response(res, 500, "Internal Server Error", null, [error.message]);
   }
@@ -105,6 +107,9 @@ export const logout = async (req, res) => {
 
     return response(res, result.statusCode, result.message, result.payload);
   } catch (error) {
+    if (error instanceof ValidationError) {
+      return response(res, error.statusCode, error.message, error.payload, error.errorsList);
+    }
     return response(res, 500, "Internal server error", null, [error.message]);
   }
 }
@@ -113,10 +118,47 @@ export const logoutFromAllDevices = async (req, res) => {
   try {
 
     res.clearCookie("refreshToken");
-    
+
     const result = await logoutAllDevices(req);
     return response(res, result.statusCode, result.message, result.payload);
   } catch (error) {
+    if (error instanceof ValidationError) {
+      return response(res, error.statusCode, error.message, error.payload, error.errorsList);
+    }
+    return response(res, 500, "Internal server error", null, [error.message]);
+  }
+};
+
+export const manualVerification = async (req, res) => {
+  try {
+    response(res, 501, "Not implemented");
+  } catch (error) {
+    if (error instanceof ValidationError) {
+      return response(res, error.statusCode, error.message, error.payload, error.errorsList);
+    }
+    return response(res, 500, "Internal server error", null, [error.message]);
+  }
+};
+
+export const manualVerificationUpdate = async (req, res) => {
+  try {
+    response(res, 501, "Not implemented");
+  } catch (error) {
+    if (error instanceof ValidationError) {
+      return response(res, error.statusCode, error.message, error.payload, error.errorsList);
+    }
+    return response(res, 500, "Internal server error", null, [error.message]);
+  }
+};
+
+export const cancelRegistration = async (req, res) => {
+  try {
+    const result = await cancelRegistrationService(req);
+    return response(res, result.statusCode, result.message, result.payload);
+  } catch (error) {
+      if (error instanceof ValidationError) {
+        return response(res, error.statusCode, error.message, error.payload, error.errorsList);
+      }
     return response(res, 500, "Internal server error", null, [error.message]);
   }
 };

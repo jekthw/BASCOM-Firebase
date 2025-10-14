@@ -2,10 +2,10 @@ import { passwordRegex } from "../../utils/passwordHandler.js";
 import { ValidationError } from "../../utils/validationError.js";
 
 export const validateRegisterInput = (body) => {
-  const { username, password, email, nis, motherName, birthDate } = body;
+  const { name, password, email, nis, motherName, birthDate } = body;
   const errors = new ValidationError();
 
-  if (!username) errors.addError("Username is required");
+  if (!name) errors.addError("name is required");
   if (!password) errors.addError("Password is required");
   if (!email) errors.addError("Email is required");
   if (!nis) errors.addError("NIS is required");

@@ -12,12 +12,15 @@ export const checkExistingUser = async (nis) => {
         const remainingTime = await getRemainingTTL(nis);
         const hours = Math.floor(remainingTime / 3600);
         const minutes = Math.floor((remainingTime % 3600) / 60);
-        
-        const errors = new ValidationError();
-        errors.addError(`You recently attempted registration. Please continue with manual verification or wait ${hours}h ${minutes}m before trying again.`);
-        errors.message = "Registration in progress";
-        errors.statusCode = 409;
-        throw errors;
+
+        throw new ValidationError("Registration in progress", 409)
+        .addError(
+            `You recently attempted registration. Please continue with manual verification or wait ${hours}h ${minutes}m before trying again.`
+        ).addPayload({
+            retryAfter: `${hours}h ${minutes}m`,
+            nextAction: "MANUAL_VERIFICATION",
+            links: { manualVerification: "/auth/manual-verification" }
+        });
     }
 
     const existingUser = await prisma.user.findFirst({
@@ -38,21 +41,37 @@ export const checkExistingUser = async (nis) => {
             errors.addError("User with this NIS already exists, please login");
             errors.message = "User already exists";
             errors.statusCode = 409;
+            errors.addPayload({
+                nextAction: "LOGIN",
+                links: { login: "/auth/login" }
+            });
         break;
         case "WAITING_FOR_ADMIN_VERIFICATION":
             errors.addError("Please wait your account is being verified");
             errors.message = "Your account is being verified";
             errors.statusCode = 409;
+            errors.addPayload({
+                nextAction: "WAIT",
+                links: { contactAdmin: "/support/contact" }
+            });
         break;
         case "UPLOAD_DOCUMENT":
             errors.addError("User with this NIS exists but needs to upload documents");
             errors.message = "Please complete your registration by uploading required documents";
             errors.statusCode = 409;
+            errors.addPayload({
+                nextAction: "UPLOAD_DOCUMENT",
+                links: { upload: "/auth/upload" }
+            });
         break;
         case "REJECTED":
             errors.addError("User with this NIS was rejected previously. Please contact administrator.");
             errors.message = "User registration was rejected previously";
             errors.statusCode = 403;
+            errors.addPayload({
+                nextAction: "CONTACT_ADMIN",
+                links: { contactAdmin: "/support/contact" }
+            });
         break;
     }
 

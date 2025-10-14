@@ -1,12 +1,12 @@
 import { verifyUserIdentity } from "./identityVerification.service.js";
 import { validateRegisterInput } from "./inputValidation.service.js";
-import { checkExistingUser } from "./userExistence.service.js";
+import { checkExistingUser } from "./checkUserExistence.service.js";
 import { createUser } from "./createUser.service.js";
 import { storeRejectedOrNotFoundUser } from "./rejectedUserCache.service.js";
 import { authLogger, systemLogger } from "../../utils/logger.js";
 
 export const registerUser = async (req) => {
-    const { username, password, email, nis, motherName } = req.body;
+    const { name, password, email, nis, motherName } = req.body;
     const clientIP = req.ip || req.connection?.remoteAddress || 'unknown';
 
     authLogger.registrationAttempt(nis, 'started', null, {
@@ -27,9 +27,9 @@ export const registerUser = async (req) => {
 
     const userData = {
         nis,
-        name: verificationResult.verificationRecord ? verificationResult.verificationRecord.name : username,
-        email,
+        name,
         password,
+        email,
         motherName,
         gender: verificationResult.verificationRecord ? verificationResult.verificationRecord.gender : null,
         birthDate: birthDateObj,

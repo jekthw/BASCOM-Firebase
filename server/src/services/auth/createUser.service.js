@@ -24,5 +24,16 @@ export const createUser = async (userData, verificationStatus) => {
         },
     });
 
+    await prisma.verificationRequest.create({
+        data: {
+            userId: newUser.id,
+            docType: null,
+            fileUrl: null,
+            status: "APPROVED",
+            reviewedBy: 0, // system
+            reviewedAt: new Date(),
+        },
+    });
+
     return newUser;
 };
