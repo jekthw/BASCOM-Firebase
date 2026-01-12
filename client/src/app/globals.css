@@ -24,8 +24,27 @@
   }
 }
 
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+.shape .gradient-bg {
+  fill: url(#shape-gradient) #fff;
+}
+
+#shape-gradient {
+  --color-stop: white;
+  --color-bot: silver;
 }

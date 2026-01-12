@@ -1,7 +1,7 @@
 import {Navbar} from '../component.js';
 
 
-export default function Profile() {
+export default function Community() {
     return(
         <div>
             <Navbar/>
