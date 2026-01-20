@@ -1,8 +1,9 @@
 import Image from "next/image";
-import Navbar from "./components/Navbar.js"
-import SearchForm from "./components/SearchForm.js"
-import Button from "./components/Buttons.js"
-import Article from "./components/Article.js"
+import Navbar from "@/components/Navbar"
+import SearchForm from "@/components/SearchForm"
+import Button from "@/components/Buttons"
+import Article from "@/components/Article"
+import Footer from "@/components/Footer"
 import { Input } from "postcss";
 
 export default function Home() {
@@ -84,12 +85,13 @@ export default function Home() {
             Event Lainnya
           </Button>
         </div>
-        <div className="h-screen w-screen"></div>
+
         {/* <div className="bg-linear-270 from-slate-100 h-108 absolute z-50 w-32">
 
         </div> */}
 
       </div>
+      <Footer/>
     </div>
   );
 }

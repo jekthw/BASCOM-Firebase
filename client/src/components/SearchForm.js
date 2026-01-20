@@ -2,7 +2,7 @@ export default function SearchForm({ id, placeholder, className}) {
     return(
         <form className={`flex flex-row ${className}`}>
         <input
-            type="text"
+            type="search"
             id={id}
             placeholder={placeholder}
             className="bg-slate-50 text-bc-dblue w-full py-2 px-6 rounded-l-xl text-xl z-10"

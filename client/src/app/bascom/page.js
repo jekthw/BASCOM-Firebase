@@ -1,16 +1,19 @@
-import {Navbar} from '../component.js';
+import Navbar from "@/components/Navbar"
+import Footer from "@/components/Footer"
+import WIP from "@/components/wip"
 
+
+export const metadata = {
+  title: "BASCOM | Coming Soon",
+  description: "BASCOM site — work in progress"
+}
 
 export default function Community() {
-    return(
-        <div>
-            <Navbar/>
-            <h1 className="text-[50pt] dark:text-blue-500">
-                
-                BASCOM
-                BASCOM
-                BASCOM
-            </h1>
-        </div>
-    );
+  return (
+    <div>
+      <Navbar />
+      <WIP/>
+      <Footer />
+    </div>
+  )
 }

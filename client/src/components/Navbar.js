@@ -41,14 +41,14 @@ export default function Navbar() {
 function NavButton({ url, children, className }) {
     const isActive = usePathname() === url;
     return (
-        <a
+        <Link
         href={url}
         className={`flex items-center font-poppins p-4 hover:underline hover:text-yellow-300 hover:text-2xl transition-all 
             ${className} 
             ${isActive? `text-yellow-300 font-bold` : `text-white`}`}
         >
         {children}
-        </a>
+        </Link>
     );
 }
 

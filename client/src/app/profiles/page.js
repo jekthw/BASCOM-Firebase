@@ -1,12 +1,18 @@
 import Image from "next/image";
-import {Navbar} from '../component.js';
-import {SearchForm} from '../component.js';
-import {Article} from '../component.js';
+import Navbar from "@/components/Navbar"
+import SearchForm from "@/components/SearchForm"
+import Button from "@/components/Buttons"
+import Alumni from "@/components/Alumni"
+import Footer from "@/components/Footer"
 import { Input } from "postcss";
+export const metadata = {
+  title: "Profiles | Bastyasaka Alumni",
+  description: "Bastyasaka Alumni — Profiles"
+}
 
 export default function Profile() {
   return (
-    <div className="bg-slate-100 h-screen">
+    <div className="bg-slate-100 h-max">
       <Navbar/>
       <div className="bg-bc-blue w-full h-18"></div>
       <div className="flex flex-col px-6 2xl:px-55">
@@ -18,50 +24,38 @@ export default function Profile() {
 
       
       <div className="px-6 2xl:px-49 w-full h-max py-20 relative flex flex-row justify-center ">
-        <div className="w-full h-max rounded-xl overflow-x-auto flex *:shrink-0 gap-6 no-scrollbar snap-x *:snap-start   *:first:ps-6 *:last:pe-[calc(100%-25.5rem)]">
+        <div className="grid grid-flow-row grid-cols-3 gap-7">
           <div>
-            <Article 
-            date={"10 Oktober 2025"} 
-            text={"Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet"}
-            img={`/smaga.jpg`}/>
+            <Alumni  
+            text={"John Doe"}
+            img={``}/>
           </div>
 
           <div>
-            <Article 
-            date={"10 Oktober 2025"} 
-            text={"Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreetLorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreetLorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet"}
-            img={`/smaga.png`}/>
+            <Alumni  
+            text={"John Doe John DoeJohn DoeJohn Doe"}
+            img={``}/>
           </div>
 
           <div>
-            <Article 
-            date={"10 Oktober 2025"} 
-            text={"Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet"}
-            img={`/banger.png`}/>
+            <Alumni  
+            text={"John Doe"}
+            img={``}/>
           
           </div>
 
           <div>
-            <Article 
-            date={"10 Oktober 2025"} 
-            text={"Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet"}
-            img={`/smaga.jpg`}/>
+            <Alumni  
+            text={"John Doe"}
+            img={``}/>
           </div>
 
           <div>
-            <Article 
-            date={"10 Oktober 2025"} 
-            text={"Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreetLorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreetLorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet"}
-            img={`/smaga.png`}/>
+            <Alumni  
+            text={"John Doe John DoeJohn DoeJohn Doe"}
+            img={``}/>
           </div>
 
-          <div>
-            <Article 
-            date={"10 Oktober 2025"} 
-            text={"Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet"}
-            img={`/banger.png`}/>
-          
-          </div>
 
           
     
@@ -71,6 +65,7 @@ export default function Profile() {
         </div> */}
 
       </div>
+      <Footer></Footer>
     </div>
   );
 }
