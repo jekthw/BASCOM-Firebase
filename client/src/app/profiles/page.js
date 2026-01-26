@@ -23,8 +23,8 @@ export default function Profile() {
       </div>
 
       
-      <div className="px-6 2xl:px-49 w-full h-max py-20 relative flex flex-row justify-center ">
-        <div className="grid grid-flow-row grid-cols-3 gap-7">
+      <div className="px-6 w-full h-max py-20 relative flex flex-row justify-center ">
+        <div className="grid grid-flow-row grid-cols-1 sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-3 gap-8">
           <div>
             <Alumni  
             text={"John Doe"}
@@ -33,7 +33,7 @@ export default function Profile() {
 
           <div>
             <Alumni  
-            text={"John Doe John DoeJohn DoeJohn Doe"}
+            text={"John Doe"}
             img={``}/>
           </div>
 
@@ -52,7 +52,67 @@ export default function Profile() {
 
           <div>
             <Alumni  
-            text={"John Doe John DoeJohn DoeJohn Doe"}
+            text={"John Doe"}
+            img={``}/>
+          </div>
+          <div>
+            <Alumni  
+            text={"John Doe"}
+            img={``}/>
+          </div>
+
+          <div>
+            <Alumni  
+            text={"John Doe"}
+            img={``}/>
+          </div>
+
+          <div>
+            <Alumni  
+            text={"John Doe"}
+            img={``}/>
+          
+          </div>
+
+          <div>
+            <Alumni  
+            text={"John Doe"}
+            img={``}/>
+          </div>
+
+          <div>
+            <Alumni  
+            text={"John Doe"}
+            img={``}/>
+          </div>
+          <div>
+            <Alumni  
+            text={"John Doe"}
+            img={``}/>
+          </div>
+
+          <div>
+            <Alumni  
+            text={"John Doe"}
+            img={``}/>
+          </div>
+
+          <div>
+            <Alumni  
+            text={"John Doe"}
+            img={``}/>
+          
+          </div>
+
+          <div>
+            <Alumni  
+            text={"John Doe"}
+            img={``}/>
+          </div>
+
+          <div>
+            <Alumni  
+            text={"John Doe"}
             img={``}/>
           </div>
 

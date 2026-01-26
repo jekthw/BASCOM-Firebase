@@ -1,5 +1,6 @@
-"use client";
+ "use client";
 import { useState } from 'react';
+import { useAuth } from "@/contexts/AuthContext";
 import { usePathname } from "next/navigation";
 import Link from 'next/link'
 
@@ -10,6 +11,7 @@ export default function Navbar() {
     const toggleMenu = () => {
         setIsOpen(!isOpen);
     }
+    const { user } = useAuth();
     return (
         <nav className="bg-bc-dblue/90 fixed flex flex-row items-center justify-between px-8 2xl:px-49 w-full h-18 end-0 z-50 backdrop-blur-sm backdrop-contrast-200">
         <div className="size-full flex flex-row gap-8 items-center">
@@ -24,7 +26,7 @@ export default function Navbar() {
             <ul className="size-full hidden lg:flex flex-row items-center text-center  ">
             <NavButton url="/">Beranda</NavButton>
             <NavButton url="/profiles">Profil Alumni</NavButton>
-            <NavButton url="/bascom">Komunitas</NavButton>
+            <NavButton url="/news">Berita</NavButton>
             <NavButton url="/about">About</NavButton>
             </ul>
         </div>
@@ -32,8 +34,14 @@ export default function Navbar() {
         onClick={toggleMenu}
         className="material-symbols-rounded block lg:!hidden cursor-pointer">menu</button>
         
-        <Link href="/login" type="button" className="px-3 py-1 rounded-lg bg-yellow-300 h-max w-max font-bold font-poppins text-bc-dblue cursor-pointer hover:text-xl hover:translate-x-1.5 transition-all hidden lg:block">Login</Link>
-        <Sidebar isOpen={isOpen} toggleMenu={toggleMenu}/>
+        {user ? (
+          <Link href="/login" className="underline h-max w-max font-bold font-poppins hover:text-lg transition-all text-yellow-300 hidden lg:flex items-center">
+            {user.email}
+          </Link>
+        ) : (
+          <Link href="/login" type="button" className="px-3 py-1 rounded-lg bg-yellow-300 h-max w-max font-bold font-poppins text-bc-dblue cursor-pointer hover:text-xl hover:translate-x-1.5 transition-all hidden lg:block">Login</Link>
+        )}
+        <Sidebar isOpen={isOpen} toggleMenu={toggleMenu} user={user}/>
         </nav>
     );
 }
@@ -52,7 +60,7 @@ function NavButton({ url, children, className }) {
     );
 }
 
-function Sidebar({isOpen, toggleMenu}){
+function Sidebar({isOpen, toggleMenu, user}){
     return(
         <>
         <div 
@@ -64,15 +72,19 @@ function Sidebar({isOpen, toggleMenu}){
             <ul className="w-full h-max flex flex-col items-center text-center *:w-full *:even:bg-black/20">
                 <NavButton url="/">Beranda</NavButton>
                 <NavButton url="/profiles">Profil Alumni</NavButton>
-                <NavButton url="/bascom">Komunitas</NavButton>
+                <NavButton url="/news">Berita</NavButton>
                 <NavButton url="/about">About</NavButton>
             </ul>
-            <Link 
+            {user ? (
+              <div className="w-32 py-2 mb-8 rounded-lg bg-yellow-300 text-center font-bold text-bc-dblue">{user.email}</div>
+            ) : (
+              <Link 
                 href="/login" 
                 className="w-32 py-2 mb-8 rounded-lg bg-yellow-300 text-center font-bold text-bc-dblue"
-            >
+              >
                 Login
-            </Link>
+              </Link>
+            )}
             </div>
         </nav>
         </>

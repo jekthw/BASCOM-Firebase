@@ -1,6 +1,7 @@
 import { Geist, Geist_Mono, Poppins } from "next/font/google";
 import Head from 'next/head';
 import "./globals.css";
+import { AuthProvider } from "@/contexts/AuthContext";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -36,7 +37,10 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} antialiased`}
       >
-        {children}
+        {/* AuthProvider wraps the app so auth state is available everywhere */}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );
