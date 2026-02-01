@@ -31,7 +31,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,600,0,0&icon_names=chevron_right,close,menu,search,visibility,visibility_off" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,600,0,0&icon_names=add,arrow_back,chevron_right,close,expand_less,expand_more,menu,search,visibility,visibility_off" />
         
       </head>
       <body

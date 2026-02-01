@@ -30,14 +30,33 @@ export function AuthProvider({ children }) {
     let unsubscribe = () => {};
     async function initAuth() {
       try {
+        // persist auth in localStorage
         await setPersistence(auth, browserLocalPersistence);
       } catch (err) {
         console.warn("Failed to set auth persistence", err);
       }
 
+      async function setSessionCookie(idToken) {
+        try {
+          await fetch("/api/sessionLogin", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ idToken }),
+            credentials: "include",
+          });
+        } catch (e) {
+          console.warn("Failed to set session cookie", e);
+        }
+      }
+
       unsubscribe = onAuthStateChanged(auth, async (u) => {
         if (u) {
           try {
+            const idToken = await u.getIdToken();
+            console.log("AuthContext: ID Token obtained on auth state change", idToken ? "(present)" : "(missing)");
+            if (idToken) {
+              await setSessionCookie(idToken);
+            }
             const ref = doc(db, "users", u.uid);
             const snap = await getDoc(ref);
             const profile = snap.exists() ? snap.data() : {};
@@ -86,10 +105,26 @@ export function AuthProvider({ children }) {
       if (snap.empty) throw new Error("No account found for that NIS");
       email = snap.docs[0].data().email;
     }
-    return await signInWithEmailAndPassword(auth, email, password);
+    const cred = await signInWithEmailAndPassword(auth, email, password);
+    const idToken = await cred.user.getIdToken();
+    console.log("AuthContext: ID Token obtained after login", idToken ? "(present)" : "(missing)");
+    if (idToken) {
+      await fetch("/api/sessionLogin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idToken }),
+        credentials: "include",
+      });
+    }
+    return cred;
   };
 
   const logout = async () => {
+    try {
+      await fetch("/api/sessionLogout", { method: "POST", credentials: "include" });
+    } catch (e) {
+      console.warn("Failed to clear session cookie", e);
+    }
     await signOut(auth);
   };
 

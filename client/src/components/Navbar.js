@@ -1,7 +1,7 @@
  "use client";
 import { useState } from 'react';
 import { useAuth } from "@/contexts/AuthContext";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Link from 'next/link'
 
 
@@ -11,7 +11,20 @@ export default function Navbar() {
     const toggleMenu = () => {
         setIsOpen(!isOpen);
     }
-    const { user } = useAuth();
+    const { user, logout } = useAuth();
+    const [menuOpen, setMenuOpen] = useState(false);
+    const router = useRouter();
+
+    const handleLogout = async () => {
+        try {
+            await logout();
+        } catch (e) {
+            console.error("Logout failed", e);
+        } finally {
+            setMenuOpen(false);
+            router.push("/login");
+        }
+    };
     return (
         <nav className="bg-bc-dblue/90 fixed flex flex-row items-center justify-between px-8 2xl:px-49 w-full h-18 end-0 z-50 backdrop-blur-sm backdrop-contrast-200">
         <div className="size-full flex flex-row gap-8 items-center">
@@ -35,9 +48,24 @@ export default function Navbar() {
         className="material-symbols-rounded block lg:!hidden cursor-pointer">menu</button>
         
         {user ? (
-          <Link href="/login" className="underline h-max w-max font-bold font-poppins hover:text-lg transition-all text-yellow-300 hidden lg:flex items-center">
-            {user.email}
-          </Link>
+          <div className="relative hidden lg:flex items-center">
+            <button
+              type="button"
+              onClick={() => setMenuOpen((s) => !s)}
+              className="cursor-pointer h-max w-max font-bold font-poppins hover:text-lg transition-all text-yellow-300 flex items-center gap-2"
+              aria-expanded={menuOpen}
+            >
+              <span className='underline'>{user.email}</span>
+              <span className={`${menuOpen? "rotate-180":"rotate-0"} transition-all material-symbols-rounded text-sm`}>expand_more</span>
+            </button>
+
+            {menuOpen && (
+              <div className="absolute translate-y-3/4 right-0 mt-2 w-50 bg-white rounded-lg shadow-lg z-50 overflow-hidden font-poppins">
+                <Link href="/user" className="block px-4 py-2 text-sm text-bc-dblue hover:bg-slate-100">Profile</Link>
+                <button onClick={handleLogout} className="cursor-pointer w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-slate-100 ">Logout</button>
+              </div>
+            )}
+          </div>
         ) : (
           <Link href="/login" type="button" className="px-3 py-1 rounded-lg bg-yellow-300 h-max w-max font-bold font-poppins text-bc-dblue cursor-pointer hover:text-xl hover:translate-x-1.5 transition-all hidden lg:block">Login</Link>
         )}
@@ -76,7 +104,7 @@ function Sidebar({isOpen, toggleMenu, user}){
                 <NavButton url="/about">About</NavButton>
             </ul>
             {user ? (
-              <div className="w-32 py-2 mb-8 rounded-lg bg-yellow-300 text-center font-bold text-bc-dblue">{user.email}</div>
+              <Link href="/user"className='py-2 mb-8 text-yellow-300 text-center font-bold  font-poppins underline'>{user.email}</Link>
             ) : (
               <Link 
                 href="/login" 

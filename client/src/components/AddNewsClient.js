@@ -3,17 +3,15 @@
 import React, { useEffect, useRef, useState } from 'react';
 
 import InputField from '@/components/InputField';
-import DatePicker from '@/components/DatePicker';
 import Button from '@/components/Buttons';
 
 // Firestore property limit is 1048487 bytes; base64 is ~4/3 of file size, so cap file at ~786KB
 const MAX_IMAGE_SIZE_BYTES = 765 * 1024; // ~765KB so base64 stays under 1048487
 
-export default function AddProfileClient() {
-  const [nis, setNis] = useState('');
-  const [name, setName] = useState('');
+export default function AddNewsClient() {
   const [title, setTitle] = useState('');
-  const [year, setYear] = useState('');
+  const [summary, setSummary] = useState('');
+  const [date, setDate] = useState('');
   const [content, setContent] = useState('');
   const [imageData, setImageData] = useState(null);
 
@@ -43,7 +41,7 @@ export default function AddProfileClient() {
       setPreview(null);
       setImageData(null);
       if (fileInputRef.current) {
-        fileInputRef.current.value = "";
+        fileInputRef.current.value = ""; // Clear the file input
       }
       return;
     }
@@ -71,44 +69,38 @@ export default function AddProfileClient() {
     if (preview && preview.startsWith('blob:')) URL.revokeObjectURL(preview);
   };
 
-  const submitProfile = async () => {
+  const submitNews = async () => {
     if (isSubmitting) return;
-    const nisTrim = (nis || "").trim();
-    if (!/^\d{6}$/.test(nisTrim)) {
-      alert('NIS harus 6 digit angka.');
-      return;
-    }
     setIsSubmitting(true);
     try {
       let res;
-      const payload = { nis: nisTrim, name, title, year, content, imageData };
-      res = await fetch('/api/profiles', {
+      const payload = { title, summary, date, content, imageData };
+      res = await fetch('/api/news', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-
+      
       if (!res.ok) {
-        console.error('Create profile failed', await res.text());
-        alert('Gagal membuat profil (cek console)');
+        console.error('Create news failed', await res.text());
+        alert('Gagal membuat berita (cek console)');
         setIsSubmitting(false);
         return;
       }
-      alert('Profil berhasil dibuat');
-      setNis('');
-      setName('');
+      alert('Berita berhasil dibuat');
       setTitle('');
-      setYear('');
+      setSummary('');
+      setDate('');
       setContent('');
       setImageData(null);
       setSelectedFile(null);
       setPreview(null);
       if (fileInputRef.current) {
-        fileInputRef.current.value = "";
+        fileInputRef.current.value = ""; // Clear the file input
       }
     } catch (err) {
       console.error(err);
-      alert('Terjadi kesalahan saat membuat profil');
+      alert('Terjadi kesalahan saat membuat berita');
     } finally {
       setIsSubmitting(false);
     }
@@ -116,7 +108,7 @@ export default function AddProfileClient() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    submitProfile();
+    submitNews();
   };
 
   return (
@@ -126,59 +118,55 @@ export default function AddProfileClient() {
           <form className='bg-none sm:bg-white rounded-2xl sm:shadow-2xl overflow-hidden' onSubmit={handleSubmit}>
             <div className='p-6 md:p-7'>
               <div className='space-y-4 sm:space-y-5'>
-                <h1 className='text-slate-900 text-lg font-bold'>Buat Profil Alumni</h1>
+                <h1 className='text-slate-900 text-lg font-bold'>Buat Berita</h1>
 
                 <div className='flex flex-col gap-2'>
-                  <label htmlFor='nis' className='text-slate-700 text-sm font-medium'>
-                    NIS (6 digit)
+                  <label htmlFor='title' className='text-slate-700 text-sm font-medium'>
+                    Judul
                   </label>
-                  <InputField
-                    id='nis'
-                    placeholder='Contoh: 192001'
-                    maxLength={6}
-                    value={nis}
-                    onChange={(e) => setNis((e.target.value || '').replace(/\D/g, ''))}
+                  <InputField className="ring-slate-200 text-slate-700" id='title' placeholder='Judul berita' value={title} onChange={(e) => setTitle(e.target.value)} />
+                </div>
+
+                <div className='flex flex-col gap-2'>
+                  <label htmlFor='summary' className='text-slate-700 text-sm font-medium'>
+                    Ringkasan (untuk kartu)
+                  </label>
+                  <textarea
+                    id='summary'
+                    name='summary'
+                    rows={3}
+                    value={summary}
+                    onChange={(e) => setSummary(e.target.value)}
+                    placeholder='Ringkasan singkat untuk tampilan kartu...'
+                    className='mt-1 text-slate-700 p-2 block w-full border-gray-300 ring-slate-200  ring-1 hover:ring-2 hover:bg-slate-100 focus-within:ring-sky-700 focus-within:ring-2 transition-all text-lg rounded-lg outline-0 '
                   />
                 </div>
 
-                <div className='grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6'>
-                  <div className='flex flex-col gap-2'>
-                    <label htmlFor='name' className='text-slate-700 text-sm font-medium'>
-                      Nama Lengkap
-                    </label>
-                    <InputField id='name' placeholder='Masukkan nama lengkap' value={name} onChange={(e) => setName(e.target.value)} />
-                  </div>
-
-                  <div className='flex flex-col gap-2'>
-                    <label htmlFor='title' className='text-slate-700 text-sm font-medium'>
-                      Jabatan / Judul
-                    </label>
-                    <InputField id='title' placeholder='Contoh: Software Engineer, Angkatan 2019' value={title} onChange={(e) => setTitle(e.target.value)} />
-                  </div>
-                </div>
-
-                <div className='grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6'>
-                  <div className='flex flex-col gap-2'>
-                    <label htmlFor='year' className='text-slate-700 text-sm font-medium'>
-                      Tahun Lulus
-                    </label>
-                    <DatePicker id='year' onlyYear onYearChange={(y) => setYear(String(y))} valueYear={year} className="w-full" />
-                  </div>
-                  <div />
+                <div className='flex flex-col gap-2'>
+                  <label htmlFor='date' className='text-slate-700 text-sm font-medium'>
+                    Tanggal
+                  </label>
+                  <input
+                    id='date'
+                    type='date'
+                    value={date}
+                    onChange={(e) => setDate(e.target.value)}
+                    className='mt-1 text-slate-700 p-2 block w-full border-gray-300 ring-slate-200  ring-1 hover:ring-2 hover:bg-slate-100 focus-within:ring-sky-700 focus-within:ring-2 transition-all text-lg rounded-lg outline-0'
+                  />
                 </div>
 
                 <div className='flex flex-col gap-2'>
                   <label htmlFor='content' className='text-slate-700 text-sm font-medium'>
-                    Profil / Isi Artikel
+                    Isi (opsional)
                   </label>
                   <textarea
                     id='content'
                     name='content'
-                    rows={8}
+                    rows={6}
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
-                    placeholder='Ceritakan kisah alumni...'
-                    className='mt-1 block w-full rounded-md border-gray-300 shadow-sm py-2 px-3 focus:outline-none focus:ring-bc-blue focus:border-bc-blue'
+                    placeholder='Isi lengkap berita...'
+                    className='mt-1 text-slate-700 p-2 block w-full border-gray-300 ring-slate-200 ring-1 hover:ring-2 hover:bg-slate-100 focus-within:ring-sky-700 focus-within:ring-2 transition-all text-lg rounded-lg outline-0 '
                   />
                 </div>
 
@@ -199,10 +187,11 @@ export default function AddProfileClient() {
                     id='imageFileInput'
                     name='imageFile'
                     type='file'
-                    accept='image/*'
+                    accept='image/*' 
                     onChange={handleFileChange}
                     className='hidden'
                   />
+
 
                   {preview ? (
                     <div className='mt-3 w-40 h-40 overflow-hidden rounded-md border'>
@@ -216,7 +205,7 @@ export default function AddProfileClient() {
             <div className='sm:bg-slate-50 px-4 sm:px-6 md:px-8 py-4 border-t border-slate-400 md:border-slate-200'>
               <div className='flex flex-col gap-4'>
                 <Button variant='primary' className='!w-full' type='submit' disabled={isSubmitting}>
-                  {isSubmitting ? 'Submitting...' : 'Buat Profil'}
+                  {isSubmitting ? 'Submitting...' : 'Buat Berita'}
                 </Button>
               </div>
             </div>

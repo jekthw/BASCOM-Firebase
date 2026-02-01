@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 export default function Alumni({ className, text, img, href = "#" }) {
-    const imgSrc = img && img.length ? img : "/profile.png";
+    const imgSrc = img && img.startsWith('data:image') ? img : (img && img.length ? img : "/profile.png");
 
     return (
         <div className={`h-max w-[90vw] sm:w-[40vw] md:w-100 bg-white rounded-xl overflow-hidden ${className}`}>
